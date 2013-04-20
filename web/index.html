@@ -7,6 +7,32 @@
     </head>
     <body>
         <h1>Hello Darwin-Test</h1>
-        {{.Code}}
+        <div id="content"></div>
     </body>
+    <script type="application/javascript">
+        var addr = {{.Url}};
+        
+        var conn = new WebSocket("ws://"+addr+"/wsb");
+        
+        var content = document.getElementById("content");
+        
+        var append = function(data){
+            var div = document.createElement("div");
+            div.innerText= data;
+            content.appendChild(div)
+        }
+        
+        conn.onclose = function(evt) {
+            console.log("closed");
+        }
+        
+        conn.onmessage = function(event){
+            console.log(event.data);
+            append(event.data);
+        }
+        
+        console.log("really nice");
+        
+        
+    </script>
 </html>
