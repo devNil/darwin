@@ -7,45 +7,6 @@ import(
 	"strconv"
 )
 
-type client struct{
-	browser *ws.Conn
-	phone *ws.Conn
-	send chan string
-}
-
-func (c *client)close(){
-	c.browser.Close()
-	c.phone.Close()
-}
-
-
-
-//read phone inputs
-func (c *client)read(){
-	for{
-		var message string
-		err := ws.Message.Receive(c.phone, &message)
-		if err != nil{
-			log.Println("Error read: ")
-			break
-		}
-
-	}
-	c.close()
-}
-
-//write to browser
-func (c *client)write(){
-	for message := range c.send{
-		err := ws.Message.Send(c.browser, &message)
-		if err != nil{
-			log.Println("Error write: ")
-			break
-		}
-	}
-	c.close()
-}
-
 type darwinServer struct{
 	browser map[string]*browser
 }
@@ -54,19 +15,36 @@ var server = darwinServer{
 }
 
 type browser struct{
+	id string
 	input chan string
 	conn *ws.Conn
+}
+
+func(b *browser)send(){
+	defer b.conn.Close()
+	for{
+		var message string
+		err := ws.Message.Receive(b.conn, &message)
+		if err != nil{
+			log.Println(err)
+			break
+		}
+	}
+	delete(server.browser, b.id)
+	log.Println(len(server.browser))
 }
 
 func (b *browser)read(){
 	for message := range b.input{
 		err:= ws.Message.Send(b.conn, message)
 		if err != nil{
-			log.Println(err)
+			log.Println("Close of client")
 			break
 		}
 	}
 	b.conn.Close()
+	delete(server.browser, b.id)
+	log.Println(len(server.browser))
 }
 
 type mobile struct{
@@ -81,6 +59,8 @@ func (m *mobile)send(){
 		err := ws.Message.Receive(m.conn, &message)
 		if err != nil{
 			log.Println(err)
+			m.b.input<-"Disconnect of phone"
+			break
 		}
 		m.b.input<-message
 	}
@@ -90,11 +70,17 @@ func (m *mobile)send(){
 func BrowserSocketHandler(connection *ws.Conn){
 	id := time.Now().Unix()
 	b := browser{
+		strconv.FormatInt(id,10),
 		make(chan string),
 		connection,
 	}
+	err := ws.Message.Send(connection, strconv.FormatInt(id, 10))
+	if err != nil{
+		log.Println("Registered and closed immediatly")
+		return
+	}
 	server.browser[strconv.FormatInt(id, 10)] = &b
-	ws.Message.Send(connection, strconv.FormatInt(id, 10))
+	go b.send()
 	b.read()
 
 }
@@ -103,10 +89,15 @@ func MobileSocketHandler(connection *ws.Conn){
 	var m string
 
 	ws.Message.Receive(connection, &m)
-	
-	mobile := mobile{
-		server.browser[m],
-		connection,
+
+	if b := server.browser[m]; b != nil{
+
+		mobile := mobile{
+			b,
+			connection,
+		}
+		mobile.send()
+	}else{
+		return
 	}
-	mobile.send()
 }
