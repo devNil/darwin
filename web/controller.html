@@ -49,8 +49,15 @@
             conn.send("Down")
         }
     
+        $(window).bind("beforeunload",function(){
+            conn.send("Close");
+            conn.close();
+        });
+    
         document.getElementById("up").onclick = up;
-    document.getElementById("down").onclick = down;
+        document.getElementById("up").ontouch = up;
+        document.getElementById("down").onclick = down;
+        document.getElementById("down").ontouch = down;
     </script>
 </body>
 </html>
