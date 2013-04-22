@@ -8,14 +8,19 @@ import(
 	"net/http"
 	"html/template"
 )
-
+const TEMPLATE = "web/"
 var index *template.Template
 var mobileIndex *template.Template
 var controller *template.Template
 
 func init(){
-	log.Println("Template-Directory: "+os.Getenv("TEMPLATE"))
-	path := os.Getenv("TEMPLATE")
+	var path string
+	if os.Getenv("TEMPLATE") == "" {
+		path = TEMPLATE
+	} else {
+		path = os.Getenv("TEMPLATE")
+	}
+	log.Println("Template-Directory: "+path)
 	index = template.Must(template.ParseFiles(path+"index.html"))
 	mobileIndex = template.Must(template.ParseFiles(path+"mobile.html"))
 	controller = template.Must(template.ParseFiles(path+"controller.html"))
