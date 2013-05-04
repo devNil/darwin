@@ -8,7 +8,8 @@
         <canvas id="board" width="640" height="480"></canvas>
         <script type="application/javascript">
         
-        var connectio = new WebSocket("ws://{{.}}/ws")
+        var url = "{.}";
+        var connection = new WebSocket("ws://"+url+"/ws")
         
         var game = new Game();    
         
