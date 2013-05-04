@@ -5,14 +5,17 @@ import(
 	"log"
 	ws "code.google.com/p/go.net/websocket"
 	"time"
+    "encoding/json"
 )
 
 var colors = []int32{0xFF00FF, 0xFFFF00}
 
 type entity struct{
-	id,X,Y,Dir int8
-	Color string
-	S int8
+    X int8 `json:"x"`
+    Y int8 `json:"y"`
+    Dir int8 `json:"dir"`
+    Color string `json:"color"`
+    S int8 `json:"size"`
 }
 
 type game struct{
@@ -26,13 +29,16 @@ type server struct{
 	register chan *client
 	tick chan bool
 	update chan command
+	idc int8
+	board [(640/16)*(480/16)]int32
 }
 
 var gameserver = &server{
-	make(map[*client]bool),
-	make(chan *client),
-	make(chan bool),
-	make(chan command),
+    clients:make(map[*client]bool),
+    register:make(chan *client),
+    tick:make(chan bool),
+    update:make(chan command),
+    idc:0,
 }
 
 func (s *server)run(){
@@ -40,7 +46,11 @@ func (s *server)run(){
         select{
             case c := <-s.register:
                 s.clients[c]=true
-                c.input<-command{0,[]byte("Figg di")}
+                c.input<-command{-1,[]byte("Figg di")}
+                
+                val, _ := json.Marshal(c.e)
+                c.input<-command{0, val}
+
             case cmd := <-s.update:
                 fmt.Println(cmd)
             case <-s.tick:
@@ -60,13 +70,14 @@ func tick() {
 }
 
 type command struct{
-	Id int8
-	Value []byte
+    Id int8 `json:"id"`
+    Value []byte `json:"v"`
 }
 
 type client struct{
 	conn *ws.Conn
 	input chan command
+    e *entity
 }
 
 func(c *client)send(){
@@ -97,6 +108,13 @@ func ConnectionHandler(connection *ws.Conn){
 	cl := &client{
 		connection,
 		make(chan command),
+        &entity{
+            X:0,
+            Y:0,
+            Dir:0,
+            Color:fmt.Sprintf("#%X",colors[gameserver.idc]),
+            S:16,
+        },
 	}
     log.Println("New Connection")
     gameserver.register<-cl

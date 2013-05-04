@@ -52,10 +52,11 @@ Game.prototype.render = function(ctx){
     
     var p = this.player;
     
+
     //console.log(p.x);
     
-    ctx.fillStyle = "black";
-    ctx.fillRect(p.x,p.y,p.s,p.s);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x,p.y,p.size,p.size);
 }
 
 Game.prototype.tick = function(){
