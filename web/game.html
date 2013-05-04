@@ -6,7 +6,10 @@
     </head>
     <body>
         <canvas id="board" width="640" height="480"></canvas>
-        <script type="application/javascript">  
+        <script type="application/javascript">
+        
+        var connectio = new WebSocket("ws://{{.}}/ws")
+        
         var game = new Game();    
         
         var input = game.input;

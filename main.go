@@ -6,6 +6,7 @@ import(
 	"log"
 	"darwin/web"
 	ws "code.google.com/p/go.net/websocket"
+	"darwin/socket"
 )
 const PORT = "8080"
 func main(){
@@ -14,9 +15,8 @@ func main(){
 	//This is just a test
 	http.HandleFunc("/", web.IndexHandler)
 	http.HandleFunc("/mobile", web.MobileIndexHandler)
-	http.Handle("/wsb", ws.Handler(web.BrowserSocketHandler))
 	http.HandleFunc("/register", web.RegisterMobileHandler)
-	http.Handle("/wsm", ws.Handler(web.MobileSocketHandler))
+	http.Handle("/ws", ws.Handler(socket.ConnectionHandler))
 	if os.Getenv("PORT") == "" {
 		port = PORT
 	} else {
