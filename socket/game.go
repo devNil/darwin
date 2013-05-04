@@ -47,13 +47,21 @@ func (s *server)run(){
             case c := <-s.register:
                 s.clients[c]=true
                 c.input<-command{-1,[]byte("Figg di")}
-                
+
                 val, _ := json.Marshal(c.e)
                 c.input<-command{0, val}
 
             case cmd := <-s.update:
                 fmt.Println(cmd)
             case <-s.tick:
+                var result []*entity
+                for k,_ := range s.clients{
+                    result = append(result,k.e)
+                }
+                b, _ := json.Marshal(result)
+                for k,_:= range s.clients{
+                    k.input<-command{2, b}
+                }
                 //fmt.Println("tick")
         }
     }
@@ -116,6 +124,7 @@ func ConnectionHandler(connection *ws.Conn){
             S:16,
         },
 	}
+    gameserver.idc += 1
     log.Println("New Connection")
     gameserver.register<-cl
 	go cl.send()
