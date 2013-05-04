@@ -2,27 +2,34 @@
 <html>
 <head>
 	<title>darwin</title>
-
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-
-	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-	<script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
-</head>
-<body>
 
-<div data-role="page">
-	<div data-role="header">
-		<h1>darwin</h1>
-	</div><!-- /header -->
-	<div data-role="content">
-        <button id="up">UP</button>
-        <button id="down">DOWN</button>
-	</div><!-- /content -->
-	<div data-role="footer" data-position="fixed">
-		<h4>by <a href="http://github.com/devNil/">devNil</a></h4>
-	</div><!-- /footer -->
-</div><!-- /page -->
+</head>
+    <style>
+        body {
+        -webkit-user-select: none;
+        }
+        div#left {
+            top:0;
+            left:0;
+            width:50%;
+            height:100%;
+            position: absolute;
+            background-color:red;
+        }
+        div#right {
+            top:0;
+            right:0;
+            position:absolute;
+            width:50%;
+            height:100%;
+            background-color:green;
+        }
+    </style>
+<body>
+        <div id="left" onclick="left()">Left</div>
+        <div id="right" onclick="right()">Right</div>
 <script type="application/javascript">
         var addr = {{.Url}};
         var id = "{{.Id}}";
@@ -41,23 +48,22 @@
             console.log(event.data);
         };
         
-        var up = function(){
-            conn.send("Up");  
+        function left(){
+            console.log("left")
+            conn.send("left");  
         };
     
-        var down = function(){
-            conn.send("Down")
+        function right(){
+            console.log("right")
+            conn.send("right")
         }
     
         $(window).bind("beforeunload",function(){
             conn.send("Close");
             conn.close();
         });
-    
-        document.getElementById("up").onclick = up;
-        document.getElementById("up").ontouch = up;
-        document.getElementById("down").onclick = down;
-        document.getElementById("down").ontouch = down;
+    document.getElementById("left").addEventListener("touchstart", left(), false);
+    document.getElementById("right").addEventListener("touchstart", right(), false); 
     </script>
 </body>
 </html>
