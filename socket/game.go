@@ -3,7 +3,6 @@ package socket
 import(
 	"fmt"
 	"log"
-    "time"
 	ws "code.google.com/p/go.net/websocket"
 	"time"
 )
@@ -43,17 +42,19 @@ func (s *server)run(){
                 s.clients[c]=true
             case cmd := <-s.update:
                 fmt.Println(cmd)
-            case <-tick:
+            case <-s.tick:
                 fmt.Println("tick")
         }
     }
 }
 
 func Run(){
+    go gameserver.run()
     tick()
 }
 func tick() {
-    fmt.Println("tick tack")
+    //fmt.Println("tick tack")
+    gameserver.tick<-true
     time.AfterFunc(time.Second/60, tick)
 }
 
@@ -95,7 +96,8 @@ func ConnectionHandler(connection *ws.Conn){
 		connection,
 		make(chan command),
 	}
-
+    log.Println("New Connection")
+    gameserver.register<-cl
 	go cl.send()
 	cl.read()
 }
