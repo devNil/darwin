@@ -1,7 +1,7 @@
 package socket
 
 import(
-	//"fmt"
+	"fmt"
 	"log"
 	ws "code.google.com/p/go.net/websocket"
 	"time"
