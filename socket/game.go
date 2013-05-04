@@ -4,6 +4,7 @@ import(
 	"fmt"
 	"log"
 	ws "code.google.com/p/go.net/websocket"
+	"time"
 )
 
 var colors = []int32{0xFF00FF, 0xFFFF00}
@@ -18,6 +19,33 @@ type game struct{
 	idc int8
 	entities []*entity
 	board [(640/16)*(480/8)]int32
+}
+
+type server struct{
+	clients map[*client]bool
+	register chan *client
+	tick chan bool
+	update chan command
+}
+
+var gameserver = &server{
+	make(map[*client]bool),
+	make(chan *client),
+	make(chan bool),
+	make(chan command),
+}
+
+func (s *server)run(){
+    for{
+        select{
+            case c := <-s.register:
+                s.clients[c]=true
+            case cmd := <-s.update:
+                fmt.Println(cmd)
+            case <-tick:
+                fmt.Println("tick")
+        }
+    }
 }
 
 func Run(){
