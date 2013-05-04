@@ -7,10 +7,37 @@
     </head>
     <body>
         <h1>Hello Darwin-Test</h1>
-        <div id="content"></div>
+		<div id="content" style="float:left;"></div>
+		<canvas id="screen" style="background-color: #92dcff;float:right;" width="640" height="480"></canvas>
     </body>
-    <script type="application/javascript">
-        var addr = {{.Url}};
+	<script type="application/javascript">
+		var X = 0;
+		var Y = 0;
+		function draw(){
+			var canvas = document.getElementById('screen');
+			var ctx = canvas.getContext('2d');
+			ctx.fillStyle = "rgb(200,0,0)";
+			ctx.fillRect (0, 0, 55, 50);
+		}
+		function moveDown(){
+			X += 10
+			var canvas = document.getElementById('screen');
+			var ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			ctx.fillStyle = "rgb(200,0,0)";
+			ctx.fillRect (0, X, 55, 50);
+				
+		}
+		function moveUp(){
+			X -= 10
+			var canvas = document.getElementById('screen');
+			var ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			ctx.fillStyle = "rgb(200,0,0)";
+			ctx.fillRect (0, X, 55, 50);
+		}		
+		
+		var addr = {{.Url}};
         
         var conn = new WebSocket("ws://"+addr+"/wsb");
         
@@ -27,8 +54,23 @@
         }
         
         conn.onmessage = function(event){
-            console.log(event.data);
-            append(event.data);
+			console.log(event.data);
+			switch (event.data) {
+				case "newRemote":
+					draw();
+					break;
+				case "Up":
+					append(event.data);
+					moveUp();
+					break;
+				case "Down":
+					append(event.data);
+					moveDown();
+					break;
+				default:
+					append(event.data);
+					break;
+			}
         }
         
         console.log("really nice");

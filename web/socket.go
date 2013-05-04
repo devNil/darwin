@@ -96,6 +96,11 @@ func MobileSocketHandler(connection *ws.Conn){
 			b,
 			connection,
 		}
+		err := ws.Message.Send(b.conn, "newRemote")
+		if err != nil{
+			log.Println(err)
+			//return
+		}
 		mobile.send()
 	}else{
 		return
