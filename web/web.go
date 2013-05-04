@@ -42,7 +42,7 @@ type controllerPage struct{
 //Handler for the index-Page
 func IndexHandler(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "text/html")
-	index.Execute(w, indexPage{r.Host})
+	index.Execute(w, r.Host)
 }
 
 //Handler for the mobile-index-page
