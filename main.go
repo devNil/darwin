@@ -13,6 +13,7 @@ func main(){
 	var port string
 	//This is just a test
 	http.HandleFunc("/", web.IndexHandler)
+	http.HandleFunc("/game.js", web.GameHandler)
 	http.HandleFunc("/mobile", web.MobileIndexHandler)
 	http.HandleFunc("/register", web.RegisterMobileHandler)
 	http.Handle("/ws", ws.Handler(socket.ConnectionHandler))

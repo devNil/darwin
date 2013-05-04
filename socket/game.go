@@ -1,7 +1,7 @@
 package socket
 
 import(
-	"fmt"
+	//"fmt"
 	"log"
     "time"
 	ws "code.google.com/p/go.net/websocket"
@@ -25,7 +25,7 @@ func Run(){
     tick()
 }
 func tick() {
-    fmt.Println("tick tack")
+    //fmt.Println("tick tack")
     time.AfterFunc(time.Second/60, tick)
 }
 
