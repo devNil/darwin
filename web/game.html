@@ -1,0 +1,47 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <title>Game</title>
+        <script type="application/javascript" src="game.js"></script>
+    </head>
+    <body>
+        <canvas id="board" width="640" height="480"></canvas>
+        <script type="application/javascript">  
+        var game = new Game();    
+        
+        var input = game.input;
+        
+        document.body.addEventListener("keydown", function(event){
+            var code = event.keyCode;
+            if(code === 39 || code === 37){
+                event.preventDefault();
+                return false;
+            }
+        });
+            
+        document.body.addEventListener("keyup", function(event){
+            var code = event.keyCode;
+            
+            if(code === 39){
+                input.right();
+            }
+            
+            if(code === 37){
+                input.left();
+            }
+            event.preventDefault();
+            return false;
+        });
+            
+        var ctx = document.getElementById("board").getContext("2d");
+        
+            
+        (function animloop(){
+            requestAnimFrame(animloop);
+            game.tick();
+            game.render(ctx);
+        })();
+        </script>
+    </body>
+    
+</html>
