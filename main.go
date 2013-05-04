@@ -22,7 +22,7 @@ func main(){
 		port = os.Getenv("PORT")
 	}
 	log.Println( port )
-    go socket.Run()
+    socket.Run()
 	err:=http.ListenAndServe(":"+port, nil)
 	if err != nil{
 		panic(err)
