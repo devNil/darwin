@@ -5,14 +5,12 @@ import(
 	"os"
 	"log"
 	"darwin/web"
-    "darwin/socket"
 	ws "code.google.com/p/go.net/websocket"
 	"darwin/socket"
 )
 const PORT = "8080"
 func main(){
 	var port string
-	//This is just a test
 	//This is just a test
 	http.HandleFunc("/", web.IndexHandler)
 	http.HandleFunc("/mobile", web.MobileIndexHandler)
