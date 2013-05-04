@@ -7,12 +7,12 @@ window.requestAnimFrame = (function(){
           };
 })();
 
-var Entity = function(){
-    this.x = 0;
-    this.y = 0;
-    this.s = 16;
-    this.dir = 0;
-    this.color = "#FF00FF";
+var Entity = function(x,y,size,dir,color){
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.dir = dir;
+    this.color = color;
 }
 
 var InputHandler = function(){
@@ -38,34 +38,21 @@ InputHandler.prototype.reset = function(){
 var Game = function(){
     this.ticks = 0;
     this.entities = new Array();
-    this.player = new Entity(); 
-    //this.entities.push();
+    this.player = new Entity(0,0,16,0,0xFF00FF); 
     this.input = new InputHandler();
 };
-
 Game.prototype.render = function(ctx){
-    /*for(var i = 0; i < this.entities.length; i++){
+    for(var i = 0; i < this.entities.length; i++){
         var ent = this.entities[i];
         ctx.fillStyle = ent.color;
-        ctx.fillRect(ent.x,ent.y,ent.s,ent.s);
-    }*/
-    
-    var p = this.player;
-    
-
-    //console.log(p.x);
-    
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x,p.y,p.size,p.size);
+        ctx.fillRect(ent.x,ent.y,ent.size,ent.size);
+    }
 }
 
 Game.prototype.tick = function(){
     this.ticks++;
     
     if(this.ticks % 20 == 0){
-        for(var i = 0; i < this.entities.length; i++){
-            this.entities[i].x += 16;
-        }
     
     if(this.input.r){
             if(this.player.dir === 3){
@@ -83,11 +70,6 @@ Game.prototype.tick = function(){
             this.player.dir -= 1; 
         }
     }
-    
-    //console.log(this.player.dir);
-        
-    //if(this.player.dir === 4) this.player.dir = 0;
-    //if(this.player.dir === -1) this.player.dir = 3;
     
     if(this.player.dir === 0){
         this.player.x += 16;

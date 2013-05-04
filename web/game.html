@@ -24,9 +24,16 @@
             }
             
             if(cmd.id === 0){
-                var s = JSON.parse(window.atob(cmd.v))
+                var s = JSON.parse(window.atob(cmd.v));
                 game.player = s;
-                console.log(s)
+                game.entities.push(game.player);
+                console.log(s);
+            }
+            
+            if(cmd.id === 1){
+                var l = JSON.parse(window.atob(cmd.v));
+                game.entities = l;
+                console.log(l);
             }
             
         }
