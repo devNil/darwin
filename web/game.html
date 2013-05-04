@@ -38,10 +38,14 @@
             var code = event.keyCode;
             
             if(code === 39){
+                var cmd = {Id:1,Value:window.btoa("1")};
+                connection.send(JSON.stringify(cmd));
                 input.right();
             }
             
             if(code === 37){
+                var cmd = {Id:1,Value:window.btoa("-1")};
+                connection.send(JSON.stringify(cmd));
                 input.left();
             }
             event.preventDefault();

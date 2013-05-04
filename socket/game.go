@@ -78,6 +78,7 @@ func(c *client)send(){
 			log.Println(err)
 			break
 		}
+        gameserver.update<-cmd
 	}
 }
 
