@@ -1,11 +1,12 @@
 package socket
 
 import(
-	"fmt"
+	//"fmt"
+	"log"
 	ws "code.google.com/p/go.net/websocket"
 )
 
-var colors = {0xFF00FF, 0xFFFF00}
+var colors = []int32{0xFF00FF, 0xFFFF00}
 
 type entity struct{
 	id,X,Y,Dir int8
@@ -29,6 +30,38 @@ type command struct{
 
 type client struct{
 	conn *ws.Conn
-	e *entity
+	input chan command
 }
 
+func(c *client)send(){
+	defer c.conn.Close()
+	for{
+		var cmd command
+		err := ws.JSON.Receive(c.conn, &cmd)
+		if err != nil{
+			log.Println(err)
+			break
+		}
+	}
+}
+
+func (c *client)read(){
+	for cmd := range c.input{
+		err := ws.JSON.Send(c.conn, cmd)
+		if err != nil {
+			log.Println("Close of client")
+			break
+		}
+	}
+	c.conn.Close()
+}
+
+func ConnectionHandler(connection *ws.Conn){
+	cl := &client{
+		connection,
+		make(chan command),
+	}
+
+	go cl.send()
+	cl.read()
+}
