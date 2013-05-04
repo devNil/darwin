@@ -8,8 +8,19 @@
         <canvas id="board" width="640" height="480"></canvas>
         <script type="application/javascript">
         
-        var url = "{.}";
+        var url = "{{.}}";
         var connection = new WebSocket("ws://"+url+"/ws")
+        
+        connection.onmessage = function(event){
+            var cmd = JSON.parse(event.data);
+            var s = window.atob(cmd.Value);
+            console.log(s);
+        }
+        
+        connection.onclose = function(){
+            console.log("closed");
+        }
+        
         
         var game = new Game();    
         

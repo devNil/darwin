@@ -52,7 +52,7 @@ Game.prototype.render = function(ctx){
     
     var p = this.player;
     
-    console.log(p.x);
+    //console.log(p.x);
     
     ctx.fillStyle = "black";
     ctx.fillRect(p.x,p.y,p.s,p.s);
@@ -83,7 +83,7 @@ Game.prototype.tick = function(){
         }
     }
     
-    console.log(this.player.dir);
+    //console.log(this.player.dir);
         
     //if(this.player.dir === 4) this.player.dir = 0;
     //if(this.player.dir === -1) this.player.dir = 3;

@@ -40,10 +40,11 @@ func (s *server)run(){
         select{
             case c := <-s.register:
                 s.clients[c]=true
+                c.input<-command{0,[]byte("Figg di")}
             case cmd := <-s.update:
                 fmt.Println(cmd)
             case <-s.tick:
-                fmt.Println("tick")
+                //fmt.Println("tick")
         }
     }
 }
@@ -84,7 +85,7 @@ func (c *client)read(){
 	for cmd := range c.input{
 		err := ws.JSON.Send(c.conn, cmd)
 		if err != nil {
-			log.Println("Close of client")
+			log.Println(err)
 			break
 		}
 	}
