@@ -5,6 +5,7 @@ import(
 	"os"
 	"log"
 	"darwin/web"
+    "darwin/socket"
 	ws "code.google.com/p/go.net/websocket"
 )
 const PORT = "8080"
@@ -23,6 +24,7 @@ func main(){
 		port = os.Getenv("PORT")
 	}
 	log.Println( port )
+    go socket.Run()
 	err:=http.ListenAndServe(":"+port, nil)
 	if err != nil{
 		panic(err)
