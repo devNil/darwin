@@ -22,10 +22,12 @@ var InputHandler = function(){
 
 InputHandler.prototype.left = function(){
     this.l = true;
+    this.r = false;
 }
 
 InputHandler.prototype.right = function(){
     this.r = true;
+    this.l = false;
 }
 
 InputHandler.prototype.reset = function(){

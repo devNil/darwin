@@ -1,7 +1,7 @@
 package socket
 
 import(
-	//"fmt"
+	"fmt"
 	"log"
 	ws "code.google.com/p/go.net/websocket"
 )
@@ -21,6 +21,35 @@ type game struct{
 }
 
 func Run(){
+    var (
+        lastTime, lastTimer1 int64
+        unprocessed, nsPerTick float64
+        ticks int32
+    )
+    lastTime = time.Now().UnixNano()
+    unprocessed = 0
+    nsPerTick = 1000000000.0 / 60
+    ticks = 0
+    lastTimer1 = time.Now().UnixNano()
+
+    for {
+        now := time.Now().UnixNano()
+        unprocessed += (float64((now - lastTime)) / nsPerTick)
+        lastTime = now
+        //fmt.Println(unprocessed)
+        for (unprocessed >= 1) {
+            ticks++
+            //tick()
+            unprocessed--
+        }
+        if ((time.Now().UnixNano() - lastTimer1) > 1000000000.0) {
+            lastTimer1 += 1000000000.0
+            fmt.Printf("ticks: %d \n",ticks)
+            ticks = 0
+        }
+
+    }
+
 }
 
 type command struct{
