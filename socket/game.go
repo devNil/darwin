@@ -161,8 +161,8 @@ func ConnectionHandler(connection *ws.Conn) {
 		connection,
 		make(chan command),
 		&entity{
-			X:     rand.Intn(640/16),
-			Y:     rand.Intn(480/16),
+			X:     rand.Intn(640/16)%16*16,
+			Y:     rand.Intn(480/16)%16*16,
 			Dir:   0,
 			Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
 			S:     16,
