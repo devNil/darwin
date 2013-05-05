@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"time"
+    "math/rand"
 )
 
 var colors = []int32{0xFF00FF, 0xFFFF0F}
@@ -54,7 +55,6 @@ func (s *server) run() {
 
 		case cmd := <-s.update:
 			fmt.Println(cmd)
-            
 		case <-s.tick:
 			tick += 1
 			var result []*entity
@@ -76,6 +76,9 @@ func (s *server) run() {
                         k.e.Y -= 16
                     }
 				}
+                if (s.board[k.e.X/16+(k.e.Y/16*640/16)] != 0){
+                    k.input <- command{3,[]byte("homo")}
+                }
 				result = append(result, k.e)
 			}
 			b, _ := json.Marshal(result)
@@ -157,8 +160,8 @@ func ConnectionHandler(connection *ws.Conn) {
 		connection,
 		make(chan command),
 		&entity{
-			X:     0,
-			Y:     0,
+			X:     rand.Intn(640/16),
+			Y:     rand.Intn(480/16),
 			Dir:   0,
 			Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
 			S:     16,

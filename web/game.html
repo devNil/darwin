@@ -36,11 +36,15 @@
                 console.log(l);
                 game.render(ctx);
             }
+            if(cmd.id === 3){
+            alert("homo");    
+            }
             
         }
         
         connection.onclose = function(){
             console.log("closed");
+            alert("homo");
         }
         
         
