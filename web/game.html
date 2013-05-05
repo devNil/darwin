@@ -3,13 +3,22 @@
     <head>
         <title>Game</title>
         <script type="application/javascript" src="game.js"></script>
+        <style>
+            body {
+                background-color:white;
+            }
+            canvas {
+                background-color:green;
+            }
+        </style>
     </head>
     <body>
         <canvas id="board" width="640" height="480"></canvas>
         <script type="application/javascript">
         
         var game = new Game();
-            
+        var canvas = document.getElementById("board");
+        var ctx = canvas.getContext("2d");
         var url = "{{.}}";
         var connection = new WebSocket("ws://"+url+"/ws")
         
@@ -37,7 +46,8 @@
                 game.render(ctx);
             }
             if(cmd.id === 3){
-            alert("homo");    
+                console.log("you should be dead");
+            //alert("homo");    
             }
             
         }
@@ -77,8 +87,9 @@
             event.preventDefault();
             return false;
         });
+        console.log("what");
+        game.startUp(ctx,canvas.width,canvas.height); 
             
-        var ctx = document.getElementById("board").getContext("2d");
         
             
         (function animloop(){

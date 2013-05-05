@@ -10,7 +10,17 @@ import (
 )
 
 var colors = []int32{0xFF00FF, 0xFFFF0F}
+const (
+    BoardX = 640, //Board width
+    BoardY = 480, //Board heigth
+    BoardFS = 16, //Boardfield size
+    MaxX = BoardX/BoardFS -1
+    MaxL = BoardY/BoardFS -1
+    LenX = BoardX/BoardFS
+    LenY = BoardY/BoardFS
+    NumTicks = 10
 
+)
 type entity struct {
 	X     int   `json:"x"`
 	Y     int   `json:"y"`
@@ -19,11 +29,6 @@ type entity struct {
 	S     int8   `json:"size"`
 }
 
-type game struct {
-	idc      int8
-	entities []*entity
-	board    [(640 / 16) * (480 / 8)]int32
-}
 
 type server struct {
 	clients  map[*client]bool
@@ -31,7 +36,7 @@ type server struct {
 	tick     chan bool
 	update   chan command
 	idc      int8
-	board    [(640 / 16) * (480 / 16)]int32
+	board    [LenX * LenY]int32
 }
 
 var gameserver = &server{
@@ -48,7 +53,7 @@ func (s *server) run() {
 		select {
 		case c := <-s.register:
 			s.clients[c] = true
-			c.input <- command{-1, []byte("Figg di")}
+			c.input <- command{-1, []byte("Welcome on this Server")}
 
 			val, _ := json.Marshal(c.e)
 			c.input <- command{0, val}
@@ -59,46 +64,56 @@ func (s *server) run() {
 			tick += 1
 			var result []*entity
 			for k, _ := range s.clients {
-				if tick%10 == 0 {
+				if tick%NumTicks == 0 {
 					if k.e.Dir == 0 {
-						k.e.X += 16
-                        fmt.Println(k.e.X)
+						k.e.X += BoardFS
 					}
                     if k.e.Dir == 1 {
-                       k.e.Y += 16 
+                       k.e.Y += BoardFS
                     }
 
                     if k.e.Dir == 2{
-                        k.e.X -= 16
+                        k.e.X -= BoardFS
                     }
 
                     if k.e.Dir == 3{
-                        k.e.Y -= 16
+                        k.e.Y -= BoardFS
                     }
-                fmt.Println(s.board[k.e.X/16+(k.e.Y/16*640/16)])
-                if (s.board[k.e.X/16+(k.e.Y/16*640/16)] != 0){
-                    k.input <- command{3,[]byte("homo")}
+                fmt.Println(s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)])
+                if (s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] != 0){
+                    k.input <- command{3,[]byte("died")}
+                    //kill player and all connections
+                } else {
+                    s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] = 1
                 }
-                s.board[k.e.X/16+(k.e.Y/16*640/16)] = 1
-                //s.board[k.e.X/16+(k.e.Y/16*640/16)] = 1
 				result = append(result, k.e)
 				}
 			}
-			b, _ := json.Marshal(result)
-			for k, _ := range s.clients {
-				k.input <- command{1, b}
-			}
-			//fmt.Println("tick")
+            if tick%NumTicks == 0 {
+			    b, _ := json.Marshal(result)
+			    for k, _ := range s.clients {
+		            k.input <- command{1, b}
+			    }
+            }
 		}
 	}
 }
 
 func Run() {
+    //add the walls to the map
+    for y:=0; y < 480/16; y++{
+        gameserver.board[y*LenX] = 1
+        gameserver.board[MaxX+y*LenX] = 1
+    }
+    for x:=0; x < 640/16; x++{
+        gameserver.board[x] = 1
+        gameserver.board[x+MaxY*LenX] = 1
+    }
+    rand.Seed(time.Now().UnixNano())
 	go gameserver.run()
 	tick()
 }
 func tick() {
-	//fmt.Println("tick tack")
 	gameserver.tick <- true
 	time.AfterFunc(time.Second/60, tick)
 }
@@ -128,7 +143,7 @@ func (c *client) send() {
             x := string(cmd.Value)
             if x == "1"{
                 if c.e.Dir == 3{
-                    c.e.Dir = 0 
+                    c.e.Dir = 0
                 }else{
                     c.e.Dir += 1
                 }
@@ -163,8 +178,8 @@ func ConnectionHandler(connection *ws.Conn) {
 		connection,
 		make(chan command),
 		&entity{
-			X:     rand.Intn(640/16)%16*16,
-			Y:     rand.Intn(480/16)%16*16,
+			X:     rand.Intn(LenX)%BoardFS*BoardFS, //returns a true "field"
+			Y:     rand.Intn(LenY)%BoardFS*BoardFS,
 			Dir:   0,
 			Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
 			S:     16,
