@@ -11,15 +11,14 @@ import (
 
 var colors = []int32{0xFF00FF, 0xFFFF0F}
 const (
-    BoardX = 640, //Board width
-    BoardY = 480, //Board heigth
-    BoardFS = 16, //Boardfield size
+    BoardX = 640 //Board width
+    BoardY = 480 //Board heigth
+    BoardFS = 16 //Boardfield size
     MaxX = BoardX/BoardFS -1
-    MaxL = BoardY/BoardFS -1
+    MaxY = BoardY/BoardFS -1
     LenX = BoardX/BoardFS
     LenY = BoardY/BoardFS
     NumTicks = 10
-
 )
 type entity struct {
 	X     int   `json:"x"`
