@@ -79,6 +79,7 @@ func (s *server) run() {
                 if (s.board[k.e.X/16+(k.e.Y/16*640/16)] != 0){
                     k.input <- command{3,[]byte("homo")}
                 }
+                s.board[k.e.X/16+(k.e.Y/16*640/16)] = 1 
 				result = append(result, k.e)
 			}
 			b, _ := json.Marshal(result)
