@@ -1,15 +1,17 @@
 package main
 
-import(
-	"net/http"
-	"os"
-	"log"
-	"darwin/web"
+import (
 	ws "code.google.com/p/go.net/websocket"
 	"darwin/socket"
+	"darwin/web"
+	"log"
+	"net/http"
+	"os"
 )
+
 const PORT = "8080"
-func main(){
+
+func main() {
 	var port string
 	//This is just a test
 	http.HandleFunc("/", web.IndexHandler)
@@ -22,10 +24,10 @@ func main(){
 	} else {
 		port = os.Getenv("PORT")
 	}
-	log.Println( port )
-    socket.Run()
-	err:=http.ListenAndServe(":"+port, nil)
-	if err != nil{
+	log.Println(port)
+	socket.Run()
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
 		panic(err)
 	}
 }

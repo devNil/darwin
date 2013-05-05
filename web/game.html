@@ -34,6 +34,7 @@
                 var l = JSON.parse(window.atob(cmd.v));
                 game.entities = l;
                 console.log(l);
+                game.render(ctx);
             }
             
         }
