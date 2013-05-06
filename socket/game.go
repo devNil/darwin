@@ -10,8 +10,13 @@ import (
     "math/rand"
 )
 
-var colors = []int32{0xFF00FF, 0xFFFF0F}
-var id = []byte(strconv.FormatInt(time.Now().Unix(),10));
+var colors = []int32{
+    0xFF00FF,
+    0xFFFF0F,
+    0xAFAFAF,
+    0x00AAEE
+    }
+var id = strconv.FormatInt(time.Now().Unix(),10) //this is the id a remote uses to connect
 const (
     BoardX = 640 //Board width
     BoardY = 480 //Board heigth
@@ -21,7 +26,7 @@ const (
     LenX = BoardX/BoardFS
     LenY = BoardY/BoardFS
     NumTicks = 10
-    NumPlayer = 2 
+    NumPlayer = 2 //number of players per game
 )
 type entity struct {
 	X     int   `json:"x"`
@@ -56,7 +61,8 @@ func (s *server) run() {
 		case c := <-s.register:
 			s.clients[c] = true
 			c.input <- command{-1, []byte("Welcome on this Server")}
-            c.input <- command{2, id}
+            //send the remote id to a client
+            c.input <- command{2, []byte(id)}
 			val, _ := json.Marshal(c.e)
 			c.input <- command{0, val}
 
@@ -185,15 +191,24 @@ func (c *client) read() {
 	}
 	c.conn.Close()
 }
-
+//each new connection will first 
 func ConnectionHandler(connection *ws.Conn) {
+    var x,y int
+    //search for a empty field
+    for {
+        x = rand.Intn(LenX)%BoardFS*BoardFS
+        y = rand.Intn(LenY)%BoardFS*BoardFS
+        if (gameserver.board[x+y*LenX] == 0){
+            break;
+        }
+    }
 	cl := &client{
 		connection,
 		make(chan command),
 		&entity{
-			X:     rand.Intn(LenX)%BoardFS*BoardFS, //returns a true "field"
-			Y:     rand.Intn(LenY)%BoardFS*BoardFS,
-			Dir:   0,
+			X:     x,
+			Y:     y,
+			Dir:   rand.Intn(4),
 			Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
 			S:     16,
 		},
@@ -206,14 +221,24 @@ func ConnectionHandler(connection *ws.Conn) {
 }
 func RemoteConnectionHandler(connection *ws.Conn){
     var m string
+    var x,y int
     ws.Message.Receive(connection, &m)
-    if (m == string(id)){
+    //check if the sended id is correct
+    if (m == id){
+        //search for a empty field
+        for {
+            x = rand.Intn(LenX)%BoardFS*BoardFS
+            y = rand.Intn(LenY)%BoardFS*BoardFS
+            if (gameserver.board[x+y*LenX] == 0){
+                break;
+            }
+        }
         cl := &client{
             connection,
             make(chan command),
             &entity{
-                X:     rand.Intn(LenX)%BoardFS*BoardFS, //returns a true "field"
-                Y:     rand.Intn(LenY)%BoardFS*BoardFS,
+                X:     x,
+                Y:     y,
                 Dir:   0,
                 Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
                 S:     16,
