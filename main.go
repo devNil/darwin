@@ -20,6 +20,7 @@ func main() {
 	http.Handle("/ws", ws.Handler(socket.ConnectionHandler))
     http.HandleFunc("/js/", web.JSSourceHandler)
     http.HandleFunc("/css/", web.CSSSourceHandler)
+    http.HandleFunc("/img/", web.IMGSourceHandler)
 	if os.Getenv("PORT") == "" {
 		port = PORT
 	} else {

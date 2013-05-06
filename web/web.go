@@ -15,6 +15,7 @@ var mobileIndex *template.Template
 var controller *template.Template
 var jsPath string
 var cssPath string
+var imgPath string
 func init(){
     var path string
 	if os.Getenv("TEMPLATE") == "" {
@@ -28,6 +29,7 @@ func init(){
 	controller = template.Must(template.ParseFiles(path+"controller.html"))
     jsPath = path
     cssPath = path
+    imgPath = path
 }
 
 //Struct for the index template
@@ -53,11 +55,15 @@ func MobileIndexHandler(w http.ResponseWriter, r *http.Request){
 }
 func JSSourceHandler(w http.ResponseWriter, r *http.Request) {
     log.Println(jsPath+r.URL.Path[1:])
-    http.ServeFile(w, r, TEMPLATE+r.URL.Path[1:])
+    http.ServeFile(w, r, jsPath+r.URL.Path[1:])
 }
 func CSSSourceHandler(w http.ResponseWriter, r *http.Request) {
     log.Println(cssPath+r.URL.Path[1:])
-    http.ServeFile(w, r, TEMPLATE+r.URL.Path[1:])
+    http.ServeFile(w, r, cssPath+r.URL.Path[1:])
+}
+func IMGSourceHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println(imgPath+r.URL.Path[1:])
+    http.ServeFile(w, r, imgPath+r.URL.Path[1:])
 }
 func RegisterMobileHandler(w http.ResponseWriter, r *http.Request){
 	r.ParseForm();

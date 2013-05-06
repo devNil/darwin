@@ -2,16 +2,9 @@ body {
     background-color:white;
 }
 canvas {
-    background-color:yellow;
-}
-#loadingScreen {
-    height:100%;
-    width:100%;
-    z-index:99;
-    background-color:red;
-    position:relative;               
-}
-#content {
-    z-index:1;
-    position:relative;
+    background-color:green;
+    position:absolute;
+    left:50%;
+    margin-left:-320px;
+    top:20%;
 }

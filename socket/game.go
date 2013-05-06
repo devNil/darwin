@@ -19,6 +19,7 @@ const (
     LenX = BoardX/BoardFS
     LenY = BoardY/BoardFS
     NumTicks = 10
+    NumPlayer = 2
 )
 type entity struct {
 	X     int   `json:"x"`
@@ -110,7 +111,18 @@ func Run() {
     }
     rand.Seed(time.Now().UnixNano())
 	go gameserver.run()
-	tick()
+	startUp()
+}
+func startUp() {
+    if gameserver.idc == NumPlayer {
+        for k, _ := range gameserver.clients {
+            k.input <- command{4,nil}
+        }
+        time.Sleep(10*time.Second)
+        tick()
+    } else {
+	    time.AfterFunc(time.Second/60, startUp)
+    }
 }
 func tick() {
 	gameserver.tick <- true

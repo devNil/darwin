@@ -2,15 +2,14 @@
 <html>
     <head>
         <title>Game</title>
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
         <script type="application/javascript" src="js/game.js"></script>
+        <script type="application/javascript" src="js/jquery.countdown.min.js"></script>
+        <script type="application/javascript" src="js/jquery.blockUI.js"></script>
         <link rel="stylesheet" type="text/css" href="css/game.css">
     </head>
     <body>
-        <!--<div id="loadingScreen">test
-        </div>-->
-        <div id="content">
-            <canvas id="board" width="640" height="480"></canvas>
-        </div>
+        <canvas id="board" width="640px" height="480px"></canvas>
         
         <script type="application/javascript">
         
@@ -19,7 +18,6 @@
         var ctx = canvas.getContext("2d");
         var url = "{{.}}";
         var connection = new WebSocket("ws://"+url+"/ws")
-        
         
         
         connection.onmessage = function(event){
@@ -46,6 +44,12 @@
             if(cmd.id === 3){
                 console.log("you should be dead");
             }
+            if(cmd.id === 4){
+                $.blockUI({
+                    message:('the game will start in 10 sec.')
+                });
+                setTimeout($.unblockUI, 10000);
+            }
             
         }
         
@@ -69,7 +73,6 @@
             
         document.body.addEventListener("keyup", function(event){
             var code = event.keyCode;
-            
             if(code === 39){
                 var cmd = {Id:1,Value:window.btoa("1")};
                 connection.send(JSON.stringify(cmd));
@@ -84,16 +87,7 @@
             event.preventDefault();
             return false;
         });
-        console.log("what");
-        game.startUp(ctx,canvas.width,canvas.height); 
-            
-        
-            
-        (function animloop(){
-            requestAnimFrame(animloop);
-            game.tick();
-            game.render(ctx);
-        })();
+        game.startUp(ctx,canvas.width,canvas.height);
         </script>
     </body>
     
