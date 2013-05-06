@@ -13,7 +13,6 @@ const PORT = "8080"
 
 func main() {
 	var port string
-	//This is just a test
 	http.HandleFunc("/", web.IndexHandler)
 	http.HandleFunc("/mobile", web.MobileIndexHandler)
 	http.HandleFunc("/register", web.RegisterMobileHandler)

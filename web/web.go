@@ -3,7 +3,6 @@
 package web
 
 import(
-    //"io/ioutil"
 	"log"
 	"os"
 	"net/http"

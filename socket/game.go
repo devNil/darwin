@@ -14,8 +14,7 @@ var colors = []int32{
     0xFF00FF,
     0xFFFF0F,
     0xAFAFAF,
-    0x00AAEE
-    }
+    0x00AAEE}
 var id = strconv.FormatInt(time.Now().Unix(),10) //this is the id a remote uses to connect
 const (
     BoardX = 640 //Board width
@@ -109,11 +108,11 @@ func (s *server) run() {
 
 func Run() {
     //add the walls to the map
-    for y:=0; y < 480/16; y++{
+    for y:=0; y < LenY; y++{
         gameserver.board[y*LenX] = 1
         gameserver.board[MaxX+y*LenX] = 1
     }
-    for x:=0; x < 640/16; x++{
+    for x:=0; x < LenX; x++{
         gameserver.board[x] = 1
         gameserver.board[x+MaxY*LenX] = 1
     }
@@ -196,8 +195,8 @@ func ConnectionHandler(connection *ws.Conn) {
     var x,y int
     //search for a empty field
     for {
-        x = rand.Intn(LenX)%BoardFS*BoardFS
-        y = rand.Intn(LenY)%BoardFS*BoardFS
+        x = rand.Intn(LenX)%BoardFS
+        y = rand.Intn(LenY)%BoardFS
         if (gameserver.board[x+y*LenX] == 0){
             break;
         }
@@ -206,9 +205,9 @@ func ConnectionHandler(connection *ws.Conn) {
 		connection,
 		make(chan command),
 		&entity{
-			X:     x,
-			Y:     y,
-			Dir:   rand.Intn(4),
+			X:     x*16,
+			Y:     y*16,
+			Dir:   int8(rand.Intn(4)),
 			Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
 			S:     16,
 		},
@@ -227,8 +226,8 @@ func RemoteConnectionHandler(connection *ws.Conn){
     if (m == id){
         //search for a empty field
         for {
-            x = rand.Intn(LenX)%BoardFS*BoardFS
-            y = rand.Intn(LenY)%BoardFS*BoardFS
+            x = rand.Intn(LenX)%BoardFS
+            y = rand.Intn(LenY)%BoardFS
             if (gameserver.board[x+y*LenX] == 0){
                 break;
             }
@@ -237,9 +236,9 @@ func RemoteConnectionHandler(connection *ws.Conn){
             connection,
             make(chan command),
             &entity{
-                X:     x,
-                Y:     y,
-                Dir:   0,
+                X:     x*16,
+                Y:     y*16,
+			    Dir:   int8(rand.Intn(4)),
                 Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
                 S:     16,
             },
