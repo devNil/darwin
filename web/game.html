@@ -2,18 +2,16 @@
 <html>
     <head>
         <title>Game</title>
-        <script type="application/javascript" src="game.js"></script>
-        <style>
-            body {
-                background-color:white;
-            }
-            canvas {
-                background-color:green;
-            }
-        </style>
+        <script type="application/javascript" src="js/game.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/game.css">
     </head>
     <body>
-        <canvas id="board" width="640" height="480"></canvas>
+        <div id="loadingScreen">test
+        </div>
+        <div id="content">
+            <canvas id="board" width="640" height="480"></canvas>
+        </div>
+        
         <script type="application/javascript">
         
         var game = new Game();
@@ -53,7 +51,7 @@
         
         connection.onclose = function(){
             console.log("closed");
-            alert("homo");
+            alert("connection closed");
         }
         
         

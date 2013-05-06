@@ -1,0 +1,17 @@
+body {
+    background-color:white;
+}
+canvas {
+    background-color:yellow;
+}
+#loadingScreen {
+    height:100%;
+    width:100%;
+    z-index:99;
+    background-color:red;
+    position:relative;               
+}
+#content {
+    z-index:1;
+    position:relative;
+}

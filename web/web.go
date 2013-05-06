@@ -3,7 +3,7 @@
 package web
 
 import(
-    "io/ioutil"
+    //"io/ioutil"
 	"log"
 	"os"
 	"net/http"
@@ -13,10 +13,10 @@ const TEMPLATE = "web/"
 var index *template.Template
 var mobileIndex *template.Template
 var controller *template.Template
-var gamejs []byte
-
+var jsPath string
+var cssPath string
 func init(){
-	var path string
+    var path string
 	if os.Getenv("TEMPLATE") == "" {
 		path = TEMPLATE
 	} else {
@@ -26,7 +26,8 @@ func init(){
 	index = template.Must(template.ParseFiles(path+"game.html"))
 	mobileIndex = template.Must(template.ParseFiles(path+"mobile.html"))
 	controller = template.Must(template.ParseFiles(path+"controller.html"))
-    gamejs,_ = ioutil.ReadFile(path+"game.js")
+    jsPath = path
+    cssPath = path
 }
 
 //Struct for the index template
@@ -50,11 +51,14 @@ func MobileIndexHandler(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "text/html")
 	mobileIndex.Execute(w, nil)
 }
-func GameHandler(w http.ResponseWriter, r *http.Request){
-    w.Header().Set("content-type", "application/javascript")
-    w.Write(gamejs)
+func JSSourceHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println(jsPath+r.URL.Path[1:])
+    http.ServeFile(w, r, TEMPLATE+r.URL.Path[1:])
 }
-
+func CSSSourceHandler(w http.ResponseWriter, r *http.Request) {
+    log.Println(cssPath+r.URL.Path[1:])
+    http.ServeFile(w, r, TEMPLATE+r.URL.Path[1:])
+}
 func RegisterMobileHandler(w http.ResponseWriter, r *http.Request){
 	r.ParseForm();
 
