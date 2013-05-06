@@ -18,6 +18,7 @@ func main() {
 	http.HandleFunc("/mobile", web.MobileIndexHandler)
 	http.HandleFunc("/register", web.RegisterMobileHandler)
 	http.Handle("/ws", ws.Handler(socket.ConnectionHandler))
+	http.Handle("/wsm", ws.Handler(socket.RemoteConnectionHandler))
     http.HandleFunc("/js/", web.JSSourceHandler)
     http.HandleFunc("/css/", web.CSSSourceHandler)
     http.HandleFunc("/img/", web.IMGSourceHandler)

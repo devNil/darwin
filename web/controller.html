@@ -4,7 +4,8 @@
 	<title>darwin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    
+    <script src="js/google.fastbutton.js"></script>
+    <script src="js/jquery.google.fastbutton.js"></script>
 
 </head>
     <style>
@@ -29,9 +30,9 @@
         }
     </style>
 <body>
-        <div id="left" onclick="left()">Left</div>
-        <div id="right" onclick="right()">Right</div>
-<script type="application/javascript">
+    <div id="left">Left</div>
+    <div id="right">Right</div>
+    <script type="application/javascript">
         var addr = {{.Url}};
         var id = "{{.Id}}";
         
@@ -41,30 +42,34 @@
             conn.send(id); 
         };
     
-        conn.onclose = function(evt) {
+        conn.onclose = function(){
             console.log("closed");
-        };
+            alert("connection closed");
+        }
         
         conn.onmessage = function(event){
-            console.log(event.data);
+            var cmd = JSON.parse(event.data);
+            //messages from server
+            if(cmd.id === -1){
+                var s = window.atob(cmd.v);
+                console.log(s);    
+            }
         };
-        
-        function left(){
-            console.log("left")
-            conn.send("left");  
-        };
-    
-        function right(){
-            console.log("right")
-            conn.send("right")
-        }
+        $('#left').fastClick(function(e) {
+            console.log("left");
+            var cmd = {Id:1,Value:window.btoa("-1")};
+            conn.send(JSON.stringify(cmd));
+        });
+        $('#right').fastClick(function(e) {
+            console.log("right");
+            var cmd = {Id:1,Value:window.btoa("1")};
+            conn.send(JSON.stringify(cmd));
+        });
     
         $(window).bind("beforeunload",function(){
             conn.send("Close");
             conn.close();
         });
-    document.getElementById("left").addEventListener("touchstart", left(), false);
-    document.getElementById("right").addEventListener("touchstart", right(), false); 
     </script>
 </body>
 </html>

@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"time"
+    "strconv"
     "math/rand"
 )
 
 var colors = []int32{0xFF00FF, 0xFFFF0F}
+var id = []byte(strconv.FormatInt(time.Now().Unix(),10));
 const (
     BoardX = 640 //Board width
     BoardY = 480 //Board heigth
@@ -19,7 +21,7 @@ const (
     LenX = BoardX/BoardFS
     LenY = BoardY/BoardFS
     NumTicks = 10
-    NumPlayer = 2
+    NumPlayer = 2 
 )
 type entity struct {
 	X     int   `json:"x"`
@@ -54,7 +56,7 @@ func (s *server) run() {
 		case c := <-s.register:
 			s.clients[c] = true
 			c.input <- command{-1, []byte("Welcome on this Server")}
-
+            c.input <- command{2, id}
 			val, _ := json.Marshal(c.e)
 			c.input <- command{0, val}
 
@@ -201,4 +203,26 @@ func ConnectionHandler(connection *ws.Conn) {
 	gameserver.register <- cl
 	go cl.send()
 	cl.read()
+}
+func RemoteConnectionHandler(connection *ws.Conn){
+    var m string
+    ws.Message.Receive(connection, &m)
+    if (m == string(id)){
+        cl := &client{
+            connection,
+            make(chan command),
+            &entity{
+                X:     rand.Intn(LenX)%BoardFS*BoardFS, //returns a true "field"
+                Y:     rand.Intn(LenY)%BoardFS*BoardFS,
+                Dir:   0,
+                Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
+                S:     16,
+            },
+        }
+        gameserver.idc += 1
+        log.Println("New Connection")
+        gameserver.register <- cl
+        go cl.send()
+        cl.read()
+    }
 }
