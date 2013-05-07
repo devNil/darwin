@@ -25,7 +25,7 @@ const (
 	LenX      = BoardX / BoardFS
 	LenY      = BoardY / BoardFS
 	NumTicks  = 10
-	NumPlayer = 2 //number of players per game
+	NumPlayer = 1 //number of players per game
 )
 
 type entity struct {
@@ -34,6 +34,7 @@ type entity struct {
 	Dir   int8   `json:"dir"`
 	Color string `json:"color"`
 	S     int8   `json:"size"`
+    died bool //flag if player died, so he won't be updated
 }
 
 type server struct {
@@ -71,7 +72,7 @@ func (s *server) run() {
 			tick += 1
 			var result []*entity
 			for k, _ := range s.clients {
-				if tick%NumTicks == 0 {
+				if tick%NumTicks == 0 && !k.e.died{
 					if k.e.Dir == 0 {
 						k.e.X += BoardFS
 					}
@@ -87,10 +88,11 @@ func (s *server) run() {
 						k.e.Y -= BoardFS
 					}
 					fmt.Println(s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)])
-					if s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] != 0 {
-						k.input <- command{3, []byte("died")}
+					if s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] != 0{
+						k.input <- command{3, []byte("died")} 
+                        k.e.died = true
 						//kill player and all connections
-					} else {
+					}else{
 						s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] = 1
 					}
 					result = append(result, k.e)
