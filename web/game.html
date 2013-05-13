@@ -30,17 +30,17 @@
             if(cmd.id === 1){
                 var l = JSON.parse(window.atob(cmd.v));
                 game.entities = l;
-                console.log(l);
                 game.render(ctx);
             }
             //add the remote id
-            if(cmd.id ===2){
-                var id = JSON.parse(window.atob(cmd.v));
+            if(cmd.id === 2){
+                var id = window.atob(cmd.v);
                 var div = $('#remoteId');
                 div.text(id);
             }
             //player is dead
             if(cmd.id === 3){
+                alert("game over");
                 console.log("you should be dead");
             }
             //start countdown
@@ -56,7 +56,7 @@
         
         connection.onclose = function(){
             console.log("closed");
-            alert("connection closed");
+            //alert("connection closed");
         }
         document.body.addEventListener("keydown", function(event){
             var code = event.keyCode;

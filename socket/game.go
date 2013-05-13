@@ -25,7 +25,7 @@ const (
 	LenX      = BoardX / BoardFS
 	LenY      = BoardY / BoardFS
 	NumTicks  = 10
-	NumPlayer = 1 //number of players per game
+	NumPlayer = 3 //number of players per game
 )
 
 type entity struct {
@@ -94,8 +94,8 @@ func (s *server) run() {
 						//kill player and all connections
 					}else{
 						s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] = 1
+					    result = append(result, k.e)
 					}
-					result = append(result, k.e)
 				}
 			}
 			if tick%NumTicks == 0 {
