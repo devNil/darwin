@@ -18,9 +18,9 @@ func main() {
 	http.HandleFunc("/register", web.RegisterMobileHandler)
 	http.Handle("/ws", ws.Handler(socket.ConnectionHandler))
 	http.Handle("/wsm", ws.Handler(socket.RemoteConnectionHandler))
-    http.HandleFunc("/js/", web.JSSourceHandler)
-    http.HandleFunc("/css/", web.CSSSourceHandler)
-    http.HandleFunc("/img/", web.IMGSourceHandler)
+	http.HandleFunc("/js/", web.JSSourceHandler)
+	http.HandleFunc("/css/", web.CSSSourceHandler)
+	http.HandleFunc("/img/", web.IMGSourceHandler)
 	if os.Getenv("PORT") == "" {
 		port = PORT
 	} else {

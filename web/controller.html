@@ -44,7 +44,7 @@
     
         conn.onclose = function(){
             console.log("closed");
-            alert("connection closed");
+            //alert("connection closed");
         }
         
         conn.onmessage = function(event){
@@ -53,6 +53,9 @@
             if(cmd.id === -1){
                 var s = window.atob(cmd.v);
                 console.log(s);    
+            }
+            if(cmd.id === 3){
+                alert("game over");
             }
         };
         $('#left').fastClick(function(e) {
