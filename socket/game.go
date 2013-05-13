@@ -25,7 +25,8 @@ const (
     LenX = BoardX/BoardFS
     LenY = BoardY/BoardFS
     NumTicks = 10
-    NumPlayer = 2 //number of players per game
+    NumBots = 1
+    NumPlayer = 2 + NumBots //number of players per game
 )
 type entity struct {
 	X     int   `json:"x"`
@@ -38,6 +39,7 @@ type entity struct {
 
 type server struct {
 	clients  map[*client]bool
+	bots     map[*client]bool
 	register chan *client
 	tick     chan bool
 	update   chan command
@@ -47,6 +49,7 @@ type server struct {
 
 var gameserver = &server{
 	clients:  make(map[*client]bool),
+	bots:     make(map[*client]bool),
 	register: make(chan *client),
 	tick:     make(chan bool),
 	update:   make(chan command),
@@ -59,17 +62,43 @@ func (s *server) run() {
 		select {
 		case c := <-s.register:
 			s.clients[c] = true
-			c.input <- command{-1, []byte("Welcome on this Server")}
-            //send the remote id to a client
-            c.input <- command{2, []byte(id)}
-			val, _ := json.Marshal(c.e)
-			c.input <- command{0, val}
-
+            if c.conn != nil {
+                c.input <- command{-1, []byte("Welcome on this Server")}
+                //send the remote id to a client
+                c.input <- command{2, []byte(id)}
+                val, _ := json.Marshal(c.e)
+                c.input <- command{0, val}
+            } else {
+                s.bots[c] = true
+            }
 		case cmd := <-s.update:
 			fmt.Println(cmd)
 		case <-s.tick:
 			tick += 1
 			var result []*entity
+            for b, _ := range s.bots {
+				if tick%NumTicks == 0 {
+                    tempX := b.e.X
+                    tempY := b.e.Y
+					if b.e.Dir == 0 {
+					    tempX += BoardFS
+					}
+                    if b.e.Dir == 1 {
+                        tempY += BoardFS
+                    }
+
+                    if b.e.Dir == 2{
+                        tempX -= BoardFS
+                    }
+
+                    if b.e.Dir == 3{
+                        tempY -= BoardFS
+                    }
+                    if (s.board[tempX/BoardFS+(tempY/BoardFS*LenX)] != 0){
+                        b.e.findNewDirection()
+                    }
+                }
+            }
 			for k, _ := range s.clients {
 				if tick%NumTicks == 0 {
 					if k.e.Dir == 0 {
@@ -121,6 +150,10 @@ func Run() {
 	startUp()
 }
 func startUp() {
+    if len(gameserver.bots) != NumBots {
+        log.Println(len(gameserver.bots))
+        ConnectionHandler(nil)
+    }
     if gameserver.idc == NumPlayer {
         for k, _ := range gameserver.clients {
             k.input <- command{4,nil}
@@ -182,11 +215,14 @@ func (c *client) send() {
 
 func (c *client) read() {
 	for cmd := range c.input {
-		err := ws.JSON.Send(c.conn, cmd)
-		if err != nil {
-			log.Println(err)
-			break
-		}
+        log.Println("test")
+        if (c.conn != nil){
+            err := ws.JSON.Send(c.conn, cmd)
+            if err != nil {
+                log.Println(err)
+                break
+		    }
+        }
 	}
 	c.conn.Close()
 }
@@ -215,8 +251,10 @@ func ConnectionHandler(connection *ws.Conn) {
 	gameserver.idc += 1
 	log.Println("New Connection")
 	gameserver.register <- cl
-	go cl.send()
+    if (connection != nil) {
+	    go cl.send()
 	cl.read()
+    }
 }
 func RemoteConnectionHandler(connection *ws.Conn){
     var m string
@@ -248,5 +286,24 @@ func RemoteConnectionHandler(connection *ws.Conn){
         gameserver.register <- cl
         go cl.send()
         cl.read()
+    }
+}
+func (e *entity)findNewDirection(){
+    for {
+        x := rand.Intn(2)
+        if x == 1{
+            if  e.Dir == 3{
+                e.Dir = 0
+            }else{
+                e.Dir += 1
+            }
+        }
+        if x == 0{
+            if e.Dir == 0{
+                e.Dir = 3
+            }else{
+                e.Dir -= 1
+            }
+        }
     }
 }
