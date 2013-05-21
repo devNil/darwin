@@ -27,9 +27,9 @@ func init(){
 
     templates = template.Must(template.ParseGlob(fmt.Sprint(TEMPLATE,"*")))
 
-    jsPath = path
-    cssPath = path
-    imgPath = path
+    jsPath = "static/"
+    cssPath = "static/"
+    imgPath = "static/"
 }
 
 //Struct for the index template
