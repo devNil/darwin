@@ -13,6 +13,7 @@ const PORT = "8080"
 
 func main() {
 	var port string
+    //start the handler
 	http.HandleFunc("/", web.IndexHandler)
 	http.HandleFunc("/mobile", web.MobileIndexHandler)
 	http.HandleFunc("/register", web.RegisterMobileHandler)
@@ -21,12 +22,14 @@ func main() {
     http.HandleFunc("/js/", web.JSSourceHandler)
     http.HandleFunc("/css/", web.CSSSourceHandler)
     http.HandleFunc("/img/", web.IMGSourceHandler)
+    //get port config
 	if os.Getenv("PORT") == "" {
 		port = PORT
 	} else {
 		port = os.Getenv("PORT")
 	}
 	log.Println(port)
+    //start the game
 	socket.Run()
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
