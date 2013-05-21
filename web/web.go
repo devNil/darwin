@@ -7,11 +7,13 @@ import(
 	"os"
 	"net/http"
 	"html/template"
+    "fmt"
 )
-const TEMPLATE = "web/"
-var index *template.Template
-var mobileIndex *template.Template
-var controller *template.Template
+const TEMPLATE = "template/"
+
+var templates *template.Template
+
+//TODO read out of environment var
 var jsPath string
 var cssPath string
 var imgPath string
@@ -23,12 +25,12 @@ func init(){
 		path = os.Getenv("TEMPLATE")
 	}
 	log.Println("Template-Directory: "+path)
-	index = template.Must(template.ParseFiles(path+"game.html"))
-	mobileIndex = template.Must(template.ParseFiles(path+"mobile.html"))
-	controller = template.Must(template.ParseFiles(path+"controller.html"))
-    jsPath = path
-    cssPath = path
-    imgPath = path
+
+    templates = template.Must(template.ParseGlob(fmt.Sprint(TEMPLATE,"*")))
+
+    jsPath = "static/"
+    cssPath = "static/"
+    imgPath = "static/"
 }
 
 //Struct for the index template
@@ -44,13 +46,13 @@ type controllerPage struct{
 //Handler for the index-Page
 func IndexHandler(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "text/html")
-	index.Execute(w, r.Host)
+    templates.ExecuteTemplate(w, "index", r.Host)
 }
 
 //Handler for the mobile-index-page
 func MobileIndexHandler(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("content-type", "text/html")
-	mobileIndex.Execute(w, nil)
+    templates.ExecuteTemplate(w, "mobileindex", nil)
 }
 func JSSourceHandler(w http.ResponseWriter, r *http.Request) {
     log.Println(jsPath+r.URL.Path[1:])
@@ -70,6 +72,6 @@ func RegisterMobileHandler(w http.ResponseWriter, r *http.Request){
 	id := r.FormValue("id")
 
 	w.Header().Set("content-type", "text/html")
-
-	controller.Execute(w, controllerPage{r.Host, id})
+    
+    templates.ExecuteTemplate(w, "controller", controllerPage{r.Host, id})
 }
