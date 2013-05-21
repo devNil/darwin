@@ -13,6 +13,7 @@ const TEMPLATE = "template/"
 
 var templates *template.Template
 
+//TODO read out of environment var
 var jsPath string
 var cssPath string
 var imgPath string
