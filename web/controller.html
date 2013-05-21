@@ -44,6 +44,7 @@
     
         conn.onclose = function(){
             console.log("closed");
+            window.location("/mobile");
             //alert("connection closed");
         }
         
@@ -52,7 +53,6 @@
             //messages from server
             if(cmd.id === -1){
                 var s = window.atob(cmd.v);
-                console.log(s);    
             }
             if(cmd.id === 3){
                 alert("game over");
@@ -60,12 +60,12 @@
         };
         $('#left').fastClick(function(e) {
             console.log("left");
-            var cmd = {Id:1,Value:window.btoa("-1")};
+            var cmd = {Id:1,v:window.atob("-1")};
             conn.send(JSON.stringify(cmd));
         });
         $('#right').fastClick(function(e) {
             console.log("right");
-            var cmd = {Id:1,Value:window.btoa("1")};
+            var cmd = {Id:1,v:window.btoa("1")};
             conn.send(JSON.stringify(cmd));
         });
     
