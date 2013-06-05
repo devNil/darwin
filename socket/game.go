@@ -39,6 +39,7 @@ type entity struct {
 
 type server struct {
 	clients  map[*client]bool
+	bots     map[*client]bool
 	register chan *client
 	tick     chan bool
 	update   chan command
@@ -48,6 +49,7 @@ type server struct {
 
 var gameserver = &server{
 	clients:  make(map[*client]bool),
+	bots:     make(map[*client]bool),
 	register: make(chan *client),
 	tick:     make(chan bool),
 	update:   make(chan command),
@@ -69,6 +71,35 @@ func (s *server) run() {
 		case <-s.tick:
 			tick += 1
 			var result []*entity
+			for b, _ := range s.bots {
+				if tick%NumTicks == 0 && !b.e.died {
+					tempX := b.e.X
+					tempY := b.e.Y
+					if b.e.Dir == 0 {
+						tempX += BoardFS
+					}
+					if b.e.Dir == 1 {
+						tempY += BoardFS
+					}
+
+					if b.e.Dir == 2 {
+						tempX -= BoardFS
+					}
+
+					if b.e.Dir == 3 {
+						tempY -= BoardFS
+					}
+					if s.board[tempX/BoardFS+(tempY/BoardFS*LenX)] != 0 {
+						b.e.findNewDirection()
+                        b.e.died = true
+                        log.Println("bot has problems")
+					} else {
+                        b.e.X = tempX
+                        b.e.Y = tempY
+                        result = append(result, b.e)
+                    }
+				}
+			}
 			for k, _ := range s.clients {
 				if tick%NumTicks == 0 && !k.e.died {
                     //calc the new position
@@ -125,7 +156,9 @@ func startUp() {
 	if gameserver.idc == NumPlayer {
         //starts the countdown on client-side.
 		for k, _ := range gameserver.clients {
-			k.input <- command{4, nil}
+            if k.conn != nil {
+			    k.input <- command{4, nil}
+            }
 		}
         //starts the countdown on server-side
 		time.Sleep(10 * time.Second)
@@ -162,7 +195,9 @@ func (c *client) send() {
 
 		if cmd.Id == 1 {
 			x := string(cmd.Value)
+            log.Println("test 1 " + string(cmd.Value))
 			if x == "1" {
+                log.Println("1")
 				if c.e.Dir == 3 {
 					c.e.Dir = 0
 				} else {
@@ -171,6 +206,7 @@ func (c *client) send() {
 			}
 
 			if x == "-1" {
+                log.Println("-1")
 				if c.e.Dir == 0 {
 					c.e.Dir = 3
 				} else {
@@ -185,16 +221,38 @@ func (c *client) send() {
 //send every input from server to client
 func (c *client) read() {
 	for cmd := range c.input {
-		err := ws.JSON.Send(c.conn, cmd)
-		if err != nil {
-			log.Println(err)
-			break
-		}
+        err := ws.JSON.Send(c.conn, cmd)
+        if err != nil {
+            log.Println(err)
+            break
+        }
 	}
 	c.conn.Close()
 }
-
-//each new connection will first
+func addBot(){
+    var x, y int
+	for {
+		x = rand.Intn(LenX) % BoardFS
+		y = rand.Intn(LenY) % BoardFS
+		if gameserver.board[x+y*LenX] == 0 {
+			break
+		}
+	}
+	cl := &client{
+		nil,
+		nil,
+		&entity{
+			X:     x * 16,
+			Y:     y * 16,
+			Dir:   int8(rand.Intn(4)),
+			Color: fmt.Sprintf("#%X", colors[gameserver.idc]),
+			S:     16,
+		},
+	}
+    gameserver.idc += 1
+    log.Println("new Bot")
+    gameserver.register <- cl
+}
 func ConnectionHandler(connection *ws.Conn) {
 	var x, y int
 	//search for a empty field
@@ -252,5 +310,24 @@ func RemoteConnectionHandler(connection *ws.Conn) {
 		gameserver.register <- cl
 		go cl.send()
 		cl.read()
+	}
+}
+func (e *entity) findNewDirection() {
+	for {
+		x := rand.Intn(2)
+		if x == 1 {
+			if e.Dir == 3 {
+				e.Dir = 0
+			} else {
+				e.Dir += 1
+			}
+		}
+		if x == 0 {
+			if e.Dir == 0 {
+				e.Dir = 3
+			} else {
+				e.Dir -= 1
+			}
+		}
 	}
 }
