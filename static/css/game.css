@@ -2,7 +2,7 @@ body {
     background-color:white;
 }
 canvas {
-    background-color:green;
+    background-color:black;
     position:absolute;
     left:50%;
     margin-left:-320px;
