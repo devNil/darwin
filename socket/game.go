@@ -11,10 +11,11 @@ import (
 )
 
 var colors = []int32{
-							0xFF00FF,
-							0xFFFF0F,
-							0xAFAFAF,
-							0x00AAEE}
+	0xFF00FF,
+	0xFFFF0F,
+	0xAFAFAF,
+	0x00AAEE}
+
 var id = strconv.FormatInt(time.Now().Unix(), 10)[6:] //this is the id a remote uses to connect
 const (
 	BoardX    = 640 //Board width
@@ -25,7 +26,7 @@ const (
 	LenX      = BoardX / BoardFS
 	LenY      = BoardY / BoardFS
 	NumTicks  = 10
-	NumPlayer = 1 //number of players per game
+	NumPlayer = 2 //number of players per game
 )
 
 type entity struct {
@@ -44,6 +45,8 @@ type server struct {
 	update   chan command
 	idc      int8 //clients counter
 	board    [LenX * LenY]int32
+	running  bool
+	ticks    int64
 }
 
 var gameserver = &server{
@@ -52,11 +55,11 @@ var gameserver = &server{
 	tick:     make(chan bool),
 	update:   make(chan command),
 	idc:      0,
+	running:  false,
 }
 
 func (s *server) run() {
-	var tick int64
-    //game loop
+	//game loop
 	for {
 		select {
 		case c := <-s.register:
@@ -67,44 +70,50 @@ func (s *server) run() {
 		case cmd := <-s.update:
 			log.Println(cmd)
 		case <-s.tick:
-			tick += 1
-			var result []*entity
-			for k, _ := range s.clients {
-				if tick%NumTicks == 0 && !k.e.died {
-                    //calc the new position
-					if k.e.Dir == 0 {
-						k.e.X += BoardFS
-					}
-					if k.e.Dir == 1 {
-						k.e.Y += BoardFS
-					}
-
-					if k.e.Dir == 2 {
-						k.e.X -= BoardFS
-					}
-
-					if k.e.Dir == 3 {
-						k.e.Y -= BoardFS
-					}
-                    //check if the new position is empty
-					if s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] != 0 {
-						k.input <- command{3, []byte("died")}
-						k.e.died = true
-					} else {
-						s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] = 1
-						result = append(result, k.e)
-					}
-				}
-			}
-			if tick%NumTicks == 0 {
-				b, _ := json.Marshal(result)
-                //send every client the new entites list. 
-				for k, _ := range s.clients {
-					k.input <- command{1, b}
-				}
+			s.ticks += 1
+			if s.ticks%NumTicks == 0 {
+				s.doUpdate()
 			}
 		}
 	}
+}
+
+func (s *server) doUpdate() {
+	var result []*entity
+	for k, _ := range s.clients {
+		if !k.e.died {
+			//calc the new position
+			if k.e.Dir == 0 {
+				k.e.X += BoardFS
+			}
+			if k.e.Dir == 1 {
+				k.e.Y += BoardFS
+			}
+
+			if k.e.Dir == 2 {
+				k.e.X -= BoardFS
+			}
+
+			if k.e.Dir == 3 {
+				k.e.Y -= BoardFS
+			}
+			//check if the new position is empty
+			if s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] != 0 {
+				k.input <- command{3, []byte("died")}
+				k.e.died = true
+			} else {
+				s.board[k.e.X/BoardFS+(k.e.Y/BoardFS*LenX)] = 1
+				result = append(result, k.e)
+			}
+		}
+	}
+
+	b, _ := json.Marshal(result)
+	//send every client the new entites list.
+	for k, _ := range s.clients {
+		k.input <- command{1, b}
+	}
+
 }
 
 func Run() {
@@ -123,11 +132,11 @@ func Run() {
 }
 func startUp() {
 	if gameserver.idc == NumPlayer {
-        //starts the countdown on client-side.
+		//starts the countdown on client-side.
 		for k, _ := range gameserver.clients {
 			k.input <- command{4, nil}
 		}
-        //starts the countdown on server-side
+		//starts the countdown on server-side
 		time.Sleep(10 * time.Second)
 		tick()
 	} else {
@@ -149,6 +158,7 @@ type client struct {
 	input chan command
 	e     *entity
 }
+
 //read all the input from the client.
 func (c *client) send() {
 	defer c.conn.Close()
@@ -182,6 +192,7 @@ func (c *client) send() {
 		gameserver.update <- cmd
 	}
 }
+
 //send every input from server to client
 func (c *client) read() {
 	for cmd := range c.input {
