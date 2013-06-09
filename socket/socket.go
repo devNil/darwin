@@ -2,8 +2,8 @@ package socket
 
 import (
 	ws "code.google.com/p/go.net/websocket"
+	"darwin/game"
 	"log"
-	"so/game"
 	"time"
 )
 

@@ -2,10 +2,10 @@ package main
 
 import (
 	ws "code.google.com/p/go.net/websocket"
+	"darwin/socket"
+	"darwin/web"
 	"log"
 	"net/http"
-	"so/socket"
-	"so/web"
 )
 
 func main() {
