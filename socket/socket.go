@@ -5,6 +5,7 @@ import (
 	"darwin/game"
 	"log"
 	"time"
+    "math/rand"
 )
 
 type coordinate struct {
@@ -170,7 +171,7 @@ func (s *server) countdown() {
 	if s.cd == 0 {
 		s.cd = 10
 		for c, _ := range s.clients {
-			ws.JSON.Send(c.conn, command{3, ""})
+			ws.JSON.Send(c.conn, command{3, c.entity.Color})
 		}
 		s.game.Running = true
 		time.AfterFunc(time.Second/60, s.ticker)
@@ -205,6 +206,7 @@ func (s *server) Handler(connection *ws.Conn) {
 
 //create new server
 func NewServer() *server {
+    rand.Seed(time.Now().UTC().UnixNano())
 	s := new(server)
 	s.game = game.NewGame(640, 480, 8)
 	s.clients = make(map[*client]bool)

@@ -1,7 +1,10 @@
 //The game package provides basic game entites
 package game
 
-import "sync"
+import (
+    "sync"
+    "math/rand"
+)
 
 type Direction int8
 
@@ -18,6 +21,7 @@ type Entity struct {
 	Y     int64
 	Dir   Direction //Direction
 	Color int32     //Color of the player
+    Gap   bool      //flag if player made a gap
 	Died  bool      //flag if dead
 	lock  *sync.Mutex
 }
@@ -132,7 +136,13 @@ func (g *Game) Update() {
 
 //Set the position on the map, not safe!!!
 func (g *Game) SetPosition(e *Entity) {
-	g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = true
+    e.Gap = false
+    if rand.Float64() < 0.001 { //the player made a gap
+        e.Gap = true
+	    g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = false
+    } else {
+	    g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = true
+    }
 }
 
 //Checks if the point of the map is already setted

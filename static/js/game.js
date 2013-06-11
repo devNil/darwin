@@ -34,8 +34,13 @@ var game = (function(document, window, undefined){
 			for(var i = 0; i< entities.length; i++){
 				var e = entities[i];
 				console.log(e);
-				ctx.fillStyle = e.Color.toString(16);
+                if (e.Gap === false) {
+				    ctx.fillStyle = e.Color.toString(16);
+                } else {
+				    ctx.fillStyle = "#000000";
+                }
 				ctx.fillRect(e.X, e.Y, 8, 8);
+
 			}
 		}
 	}
@@ -71,6 +76,10 @@ var game = (function(document, window, undefined){
 		}
 
 		if(cmd.Id == 3){
+            colorBox = document.getElementById("playerColor");
+            console.log(cmd.Value)
+            //int to hex string!!
+            colorBox.style.backgroundColor=cmd.Value;
 			ctx.clearRect(0, 0, 640, 480)
 			running = true;
 			loop();

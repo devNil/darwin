@@ -9,7 +9,11 @@
 		<h2>Host: {{.host}}</h2>
 		<button id="c">Connect</button>
 		<button id="approve">Approve</button>
-		<canvas id="display" width="640" height="480" style="background-color:#000;"></canvas>
+        <canvas id="display" width="640" height="480" style="background-color:#000;"></canvas>
+        <div>
+            <h2>Player Color:</h2>
+            <div id="playerColor" style="height:20px; width:20px; background-color:green;" ></div>
+        </div>
 		<script type="application/javascript" src="js/game.js"></script>
 		<script type="application/javascript">
 			var button = document.getElementById("c");
