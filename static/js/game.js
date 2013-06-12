@@ -25,6 +25,7 @@ var game = (function(document, window, undefined){
 
 	(function init(){
 		ctx = document.getElementById("display").getContext("2d");
+        ctx.font="30px Arial";
 		ctx.fillStyle="#FFF";
 		ctx.fillText("Not connected!!!", 20, 20);
 	}());
@@ -66,21 +67,17 @@ var game = (function(document, window, undefined){
 
 		if(cmd.Id == 0){
 			ctx.clearRect(0, 0, 640, 480);
-			ctx.fillStyle = "#FFF";
+			ctx.fillStyle = "#000";
 			ctx.fillRect(0, 0, 640, 480);
 		}
 
 		if(cmd.Id == 2){
-			ctx.clearRect(0, 0, 640, 480);
-			ctx.fillText(cmd.Value, 20, 20);
+			ctx.clearRect(310, 195, 30, 30);
+			ctx.fillText(cmd.Value, 320, 220);
 		}
 
 		if(cmd.Id == 3){
-            colorBox = document.getElementById("playerColor");
-            console.log(cmd.Value)
-            //int to hex string!!
-            colorBox.style.backgroundColor=cmd.Value;
-			ctx.clearRect(0, 0, 640, 480)
+			ctx.clearRect(310, 195, 30, 30)
 			running = true;
 			loop();
 		}
@@ -95,6 +92,16 @@ var game = (function(document, window, undefined){
 			ctx.fillStyle = "#FFF";
 			ctx.fillText("Spielende :'(", 40, 40);
 		}
+        if(cmd.Id == 6){
+            entity = cmd.Value
+            //show color of player
+            colorBox = document.getElementById("playerColor");
+            colorBox.style.backgroundColor=entity.Color.toString(16); 
+            //set start position on map
+            ctx.fillStyle = entity.Color.toString(16);
+            ctx.fillRect(entity.X, entity.Y, 8, 8);
+            ctx.fillSytle = "#FFF"
+        }
 	}
 
 	var error = function(){

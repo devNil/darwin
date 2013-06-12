@@ -152,6 +152,9 @@ func (s *server) run() {
 			}
 
 			if ready {
+			    for c, _ := range s.clients {
+                    ws.JSON.Send(c.conn, command{6, c.entity})
+                }
 				time.AfterFunc(time.Second, s.countdown)
 			}
 
@@ -171,7 +174,7 @@ func (s *server) countdown() {
 	if s.cd == 0 {
 		s.cd = 10
 		for c, _ := range s.clients {
-			ws.JSON.Send(c.conn, command{3, c.entity.Color})
+			ws.JSON.Send(c.conn, command{3, ""})
 		}
 		s.game.Running = true
 		time.AfterFunc(time.Second/60, s.ticker)
