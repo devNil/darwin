@@ -2,8 +2,7 @@
 package game
 
 import (
-    "sync"
-    "math/rand"
+	"math/rand"
 )
 
 type Direction int8
@@ -21,9 +20,8 @@ type Entity struct {
 	Y     int64
 	Dir   Direction //Direction
 	Color int32     //Color of the player
-    Gap   bool      //flag if player made a gap
+	Gap   bool      //flag if player made a gap
 	Died  bool      //flag if dead
-	lock  *sync.Mutex
 }
 
 //The game struct is a container for all things in the game
@@ -70,8 +68,6 @@ func (d Direction) counterclockwise() Direction {
 
 //only accepts RIGTH or LEFT
 func (e *Entity) SetDir(d Direction) {
-	e.lock.Lock()
-	defer e.lock.Unlock()
 	if d == RIGHT {
 		e.Dir = e.Dir.clockwise()
 	}
@@ -136,13 +132,13 @@ func (g *Game) Update() {
 
 //Set the position on the map, not safe!!!
 func (g *Game) SetPosition(e *Entity) {
-    e.Gap = false
-    if rand.Float64() < 0.001 { //the player made a gap
-        e.Gap = true
-	    g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = false
-    } else {
-	    g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = true
-    }
+	e.Gap = false
+	if rand.Float64() < 0.001 { //the player made a gap
+		e.Gap = true
+		g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = false
+	} else {
+		g.Map[(e.X/g.Ps)+(e.Y/g.Ps)*g.W] = true
+	}
 }
 
 //Checks if the point of the map is already setted
@@ -174,7 +170,6 @@ func (g *Game) NewEntity(x, y int64, dir Direction, color int32) *Entity {
 	e.Dir = dir
 	e.Color = color
 	e.Died = false
-	e.lock = new(sync.Mutex)
 
 	g.Entities[e] = true
 	g.SetPosition(e)

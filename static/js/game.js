@@ -14,6 +14,9 @@ var game = (function(document, window, undefined){
 	//websocket-object
 	var socket;
 
+	//lobby node
+	var lobby;
+
 	//url
 	var url = "";
 
@@ -25,9 +28,11 @@ var game = (function(document, window, undefined){
 
 	(function init(){
 		ctx = document.getElementById("display").getContext("2d");
-        ctx.font="30px Arial";
+        	ctx.font="30px Arial";
 		ctx.fillStyle="#FFF";
 		ctx.fillText("Not connected!!!", 20, 20);
+
+		lobby = document.getElementById("lobby");
 	}());
 
 	var render = function(){
@@ -92,16 +97,36 @@ var game = (function(document, window, undefined){
 			ctx.fillStyle = "#FFF";
 			ctx.fillText("Spielende :'(", 40, 40);
 		}
-        if(cmd.Id == 6){
-            entity = cmd.Value
-            //show color of player
-            colorBox = document.getElementById("playerColor");
-            colorBox.style.backgroundColor=entity.Color.toString(16); 
-            //set start position on map
-            ctx.fillStyle = entity.Color.toString(16);
-            ctx.fillRect(entity.X, entity.Y, 8, 8);
-            ctx.fillSytle = "#FFF"
-        }
+		if(cmd.Id == 6){
+			    entity = cmd.Value
+			    //show color of player
+			    colorBox = document.getElementById("playerColor");
+			    colorBox.style.backgroundColor=entity.Color.toString(16); 
+			    //set start position on map
+			    ctx.fillStyle = entity.Color.toString(16);
+			    ctx.fillRect(entity.X, entity.Y, 8, 8);
+			    ctx.fillSytle = "#FFF"
+		}
+
+		if(cmd.Id == 20){
+			clients = cmd.Value;
+			
+			lobby.innerHTML = "";
+
+			var c, color, div, p;
+
+			for(var i = 0; i < clients.length; i++){
+				c = clients[i]
+				color = document.createElement("div")
+				color.style.width = "40px";
+				color.style.height = "40px";
+				color.style.backgroundColor = c.Entity.Color.toString(16);
+				color.style.border = !c.Approved?"solid 2px red":"solid 2px "+c.Entity.Color.toString(16);
+				color.style.float = "left";
+				color.style.marginRight = "5px"; 
+				lobby.appendChild(color);
+			}
+		}
 	}
 
 	var error = function(){
