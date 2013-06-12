@@ -4,8 +4,8 @@ import (
 	ws "code.google.com/p/go.net/websocket"
 	"darwin/game"
 	"log"
+	"math/rand"
 	"time"
-    "math/rand"
 )
 
 type coordinate struct {
@@ -46,9 +46,9 @@ type command struct {
 //the client represents either a desktop machine or a mobile user
 type client struct {
 	server   *server
-	entity   *game.Entity //the entity in the game
+	Entity   *game.Entity //the entity in the game
 	conn     *ws.Conn     //the websocket connection
-	approved bool         //if the client has approved to start
+	Approved bool         //if the client has approved to start
 }
 
 //the server is the game running as a websocket-server
@@ -81,11 +81,11 @@ func (c *client) readConnection() {
 		}
 
 		if cmd.Id == 10 {
-			c.entity.SetDir(game.LEFT)
+			c.Entity.SetDir(game.LEFT)
 		}
 
 		if cmd.Id == 11 {
-			c.entity.SetDir(game.RIGHT)
+			c.Entity.SetDir(game.RIGHT)
 		}
 	}
 
@@ -98,12 +98,14 @@ func (s *server) run() {
 		case c := <-s.register:
 			s.clients[c] = true
 			err := ws.JSON.Send(c.conn, command{0, "PING"})
+
 			if err != nil {
 				log.Println(err)
 				s.unregister <- c
 			}
+			s.lobby <- true
 		case c := <-s.unregister:
-			s.game.DeleteEntity(c.entity)
+			s.game.DeleteEntity(c.Entity)
 			delete(s.clients, c)
 		case <-s.tick:
 			if s.game.Running {
@@ -141,20 +143,20 @@ func (s *server) run() {
 				}
 			}
 		case c := <-s.approve:
-			c.approved = true
+			c.Approved = true
 
 			ready := true
 
 			for k, _ := range s.clients {
-				if !k.approved {
+				if !k.Approved {
 					ready = false
 				}
 			}
 
 			if ready {
-			    for c, _ := range s.clients {
-                    ws.JSON.Send(c.conn, command{6, c.entity})
-                }
+				for c, _ := range s.clients {
+					ws.JSON.Send(c.conn, command{6, c.Entity})
+				}
 				time.AfterFunc(time.Second, s.countdown)
 			}
 
@@ -197,10 +199,10 @@ func (s *server) Handler(connection *ws.Conn) {
 	client := new(client)
 	client.conn = connection
 	client.server = s
-	client.approved = false
+	client.Approved = false
 
 	sc := startcoords[len(s.clients)]
-	client.entity = s.game.NewEntity(sc.x, sc.y, sc.dir, s.color[len(s.clients)])
+	client.Entity = s.game.NewEntity(sc.x, sc.y, sc.dir, s.color[len(s.clients)])
 	log.Println("new connection")
 	s.register <- client
 	s.cd = 10
@@ -209,7 +211,7 @@ func (s *server) Handler(connection *ws.Conn) {
 
 //create new server
 func NewServer() *server {
-    rand.Seed(time.Now().UTC().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 	s := new(server)
 	s.game = game.NewGame(640, 480, 8)
 	s.clients = make(map[*client]bool)
