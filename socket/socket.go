@@ -99,14 +99,16 @@ func (s *server) run() {
 			s.clients[c] = true
 			err := ws.JSON.Send(c.conn, command{0, "PING"})
 
+			s.updateLobby()
+
 			if err != nil {
 				log.Println(err)
 				s.unregister <- c
 			}
-			s.lobby <- true
 		case c := <-s.unregister:
 			s.game.DeleteEntity(c.Entity)
 			delete(s.clients, c)
+			s.updateLobby()
 		case <-s.tick:
 			if s.game.Running {
 				s.tickCount++
@@ -153,6 +155,8 @@ func (s *server) run() {
 				}
 			}
 
+			s.updateLobby()
+
 			if ready {
 				for c, _ := range s.clients {
 					ws.JSON.Send(c.conn, command{6, c.Entity})
@@ -161,6 +165,18 @@ func (s *server) run() {
 			}
 
 		}
+	}
+}
+
+func (s *server) updateLobby() {
+	clients := make([]*client, 0)
+
+	for c, _ := range s.clients {
+		clients = append(clients, c)
+	}
+
+	for c, _ := range s.clients {
+		ws.JSON.Send(c.conn, command{20, clients})
 	}
 }
 
