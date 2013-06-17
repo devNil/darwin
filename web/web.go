@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var templates *template.Template
@@ -36,6 +37,17 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	values["wshost"] = template.HTML(fmt.Sprint("ws://", addrs[0], ":8080/ws"))
 
 	w.Header().Add("content-type", "text/html")
+
+	if strings.Contains(r.UserAgent(), "iPhone") {
+		templates.ExecuteTemplate(w, "mobile", values)
+		return
+	}
+
+	if strings.Contains(r.UserAgent(), "iPad") {
+		templates.ExecuteTemplate(w, "mobile", values)
+		return
+	}
+
 	templates.ExecuteTemplate(w, "desktop", values)
 	return
 }

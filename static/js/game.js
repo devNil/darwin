@@ -110,13 +110,26 @@ var game = (function(document, window, undefined){
 
 		if(cmd.Id == 20){
 			clients = cmd.Value;
-			
+            
 			lobby.innerHTML = "";
-
-			var c, color, div, p;
-
+            
+			var c, color, div, p, entity;
+            
+            ctx.clearRect(0, 0, 640, 480);
+            
 			for(var i = 0; i < clients.length; i++){
-				c = clients[i]
+                c = clients[i];
+                entity = c.Entity;
+                
+                ctx.fillStyle = entity.Color.toString(16);
+                ctx.fillRect(entity.X, entity.Y, 8, 8);
+                
+                
+				
+                
+                
+                
+                
 				color = document.createElement("div")
 				color.style.width = "40px";
 				color.style.height = "40px";
@@ -134,8 +147,10 @@ var game = (function(document, window, undefined){
 	}
 
 	var close = function(){
+        lobby.innerHTML = "";
+        entities = null;
 		ctx.clearRect(0, 0, 640, 480);
-		ctx.fillText("Connection closed", 20, 20);
+		ctx.fillText("Game ended; Connection closed", 40, 20);
 	}
 
 	var prepareKeyListener = function(){

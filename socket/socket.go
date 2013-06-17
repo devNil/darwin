@@ -17,23 +17,23 @@ type coordinate struct {
 var startcoords = []coordinate{
 	coordinate{
 		game.RIGHT,
-		0,
-		0,
+		8,
+		8,
 	},
 	coordinate{
 		game.DOWN,
-		640 - 8,
-		0,
+		640 - 16,
+		8,
 	},
 	coordinate{
 		game.LEFT,
-		640 - 8,
-		472,
+		640 - 16,
+		480 - 16,
 	},
 	coordinate{
 		game.UP,
-		0,
-		472,
+		8,
+		480 - 16,
 	},
 }
 
@@ -98,6 +98,7 @@ func (s *server) run() {
 		case c := <-s.register:
 			s.clients[c] = true
 			err := ws.JSON.Send(c.conn, command{0, "PING"})
+			ws.JSON.Send(c.conn, command{6, c.Entity})
 
 			s.updateLobby()
 
@@ -107,6 +108,7 @@ func (s *server) run() {
 			}
 		case c := <-s.unregister:
 			s.game.DeleteEntity(c.Entity)
+			c.conn.Close()
 			delete(s.clients, c)
 			s.updateLobby()
 		case <-s.tick:
@@ -142,6 +144,8 @@ func (s *server) run() {
 
 				if s.game.End() {
 					s.game.Running = false
+					s.game.Reset()
+					s.Reset()
 				}
 			}
 		case c := <-s.approve:
@@ -210,8 +214,20 @@ func (s *server) Start() {
 	go s.run()
 }
 
+func (s *server) Reset() {
+	for c, _ := range s.clients {
+		s.game.DeleteEntity(c.Entity)
+		c.conn.Close()
+		delete(s.clients, c)
+	}
+}
+
 //Handler for websocket purpose
 func (s *server) Handler(connection *ws.Conn) {
+	if len(s.clients) == 4 {
+		connection.Close()
+		return
+	}
 	client := new(client)
 	client.conn = connection
 	client.server = s
@@ -219,7 +235,6 @@ func (s *server) Handler(connection *ws.Conn) {
 
 	sc := startcoords[len(s.clients)]
 	client.Entity = s.game.NewEntity(sc.x, sc.y, sc.dir, s.color[len(s.clients)])
-	log.Println("new connection")
 	s.register <- client
 	s.cd = 10
 	client.readConnection()

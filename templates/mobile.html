@@ -1,0 +1,85 @@
+{{define "mobile"}}
+<!DOCTYPE html>
+<html>    
+    <head>
+        <title>Controller</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
+        <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js"></script>
+        <script src="js/google.fastbutton.js"></script>
+        <script src="js/jquery.google.fastbutton.js"></script>
+        <script type="application/javascript">
+            var url = "{{.wshost}}"
+
+            $(document).on("pageinit", function() {
+
+                var socket = new WebSocket(url);
+
+                socket.onmessage = function(e) {
+                    var cmd = JSON.parse(e.data);
+
+                    if (cmd.Id === 6) {
+                        entity = cmd.Value;
+                        console.log(cmd);
+                        $("#c").css("background", "#"+entity.Color.toString(16));
+                    }
+                };
+
+                $('#l').fastClick(function(e) {
+                    socket.send(JSON.stringify({
+                        Id: 10,
+                        Value: ""
+                    }));
+                    e.preventDefault();
+                });
+
+                $('#r').fastClick(function(e) {
+                    socket.send(JSON.stringify({
+                        Id: 11,
+                        Value: ""
+                    }));
+                    e.preventDefault();
+                });
+
+                $("#approve").fastClick(function(e) {
+                    socket.send(JSON.stringify({
+                        Id: 1,
+                        Value: ""
+                    }));
+                    e.preventDefault();
+                });
+            });
+        </script>
+        <style>
+            .button {
+                padding: 50% 0;
+            }
+            
+            ·orange{
+                background:#FF7800;
+            }
+            .green{
+                background:#128E9B;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <div data-role="page" id="c">
+        <div data-role="content">
+                <a href="#" id="approve" data-role="button">Approve</a>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <a href="#" id="l" data-role="button" class="button">L</a>
+                    </div>
+                    <div class="ui-block-b">
+                        <a href="#" id="r" data-role="button" class="button">R</a>
+                    </div>
+                </div>
+                <!-- /grid-a -->
+            </div>
+            </div>    <!-- /page -->
+    </body>
+
+</html>{{end}}
