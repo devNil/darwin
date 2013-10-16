@@ -26,15 +26,18 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+    var addr string
 
 	addrs, err := net.LookupHost(name)
 	if err != nil {
+        addr = "localhost"
 		log.Println(err)
-		return
-	}
+	} else {
+        addr = addrs[0]
+    }
 
-	values := map[string]interface{}{"host": fmt.Sprint(addrs[0], ":8080")}
-	values["wshost"] = template.HTML(fmt.Sprint("ws://", addrs[0], ":8080/ws"))
+	values := map[string]interface{}{"host": fmt.Sprint(addr, ":9080")}
+	values["wshost"] = template.HTML(fmt.Sprint("ws://", addr, ":9080/ws"))
 
 	w.Header().Add("content-type", "text/html")
 

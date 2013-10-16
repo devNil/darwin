@@ -18,9 +18,10 @@ func main() {
 
 	http.Handle("/ws", ws.Handler(server.Handler))
 
-	log.Println("Server started on :8080")
-	err := http.ListenAndServe(":8080", nil)
+	log.Println("Server started on :9080")
+	err := http.ListenAndServe(":9080", nil)
 	if err != nil {
 		panic(err)
+        log.Println("test")
 	}
 }
